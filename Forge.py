@@ -1,9 +1,9 @@
 '''Main file for the neural-mmo/projekt demo
 
 /projeckt will give you a basic sense of the training
-loop, infrastructure, and IO modules for handling input 
-and output spaces. From there, you can either use the 
-prebuilt IO networks in PyTorch to start training your 
+loop, infrastructure, and IO modules for handling input
+and output spaces. From there, you can either use the
+prebuilt IO networks in PyTorch to start training your
 own models immediately or hack on the environment'''
 
 #My favorite debugging macro
@@ -36,9 +36,9 @@ from forge.blade.core import terrain
 class LogCallbacks(DefaultCallbacks):
    STEP_KEYS    = 'rllib_compat env_step realm_step env_stim stim_process'.split()
    EPISODE_KEYS = ['env_reset']
-   
+
    def init(self, episode):
-      for key in LogCallbacks.STEP_KEYS + LogCallbacks.EPISODE_KEYS: 
+      for key in LogCallbacks.STEP_KEYS + LogCallbacks.EPISODE_KEYS:
          episode.hist_data[key] = []
 
    def on_episode_start(self, *, worker: RolloutWorker, base_env: BaseEnv,
@@ -109,7 +109,7 @@ def loadTrainer(config):
       'num_sgd_iter': 1,
       'framework': 'torch',
       'horizon': np.inf,
-      'soft_horizon': False, 
+      'soft_horizon': False,
       '_use_trajectory_view_api': False,
       'no_done_at_end': False,
       'callbacks': LogCallbacks,
@@ -178,7 +178,7 @@ class Anvil():
 
    def visualize(self, **kwargs):
       visualize(self.config)
-      
+
 if __name__ == '__main__':
    #Build config with CLI overrides
    Fire(Anvil)
