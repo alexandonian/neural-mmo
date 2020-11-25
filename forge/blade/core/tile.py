@@ -1,28 +1,54 @@
 from pdb import set_trace as T
 import numpy as np
 
-from forge.blade.io.stimulus.hook import StimHook
-from forge.blade.io.stimulus.static import Stimulus
+from forge.blade.lib import enums
+from forge.blade.io.stimulus import Static
 
 def camel(string):
    return string[0].lower() + string[1:]
 
-class Tile(StimHook):
+class Tile:
    SERIAL = 1
-   def __init__(self, config, mat, r, c, nCounts, tex):
-      super().__init__(Stimulus.Tile, config)
-      self.r, self.c = r, c
-      self.mat = mat()
-      self.ents = {}
-      self.state = mat()
-      self.capacity = self.mat.capacity
-      self.tex = tex
+   def __init__(self, realm, config, mat, r, c, tex):
+      self.realm = realm
+      self.mat   = mat()
+      self.ents  = {}
 
-      self.counts = [0 for _ in range(config.NPOP)]
+      self.state    = mat()
+      self.capacity = self.mat.capacity
+      self.tex      = tex
+
+      self.serialized = 'R' + str(r) + '-C' + str(c)
+
+      self.r     = Static.Tile.R(realm.dataframe, self.serial, r)
+      self.c     = Static.Tile.C(realm.dataframe, self.serial, c)
+      self.nEnts = Static.Tile.NEnts(realm.dataframe, self.serial)
+      self.index = Static.Tile.Index(realm.dataframe, self.serial, self.state.index)
+
+      realm.dataframe.init(Static.Tile, self.serial, (r, c))
+ 
+   @property
+   def repr(self):
+      return ((self.r, self.c))
+
+   def packet(self):
+      data = {}
 
    @property
    def serial(self):
-      return self.r, self.c
+      return self.serialized
+
+   @property
+   def pos(self):
+      return self.r.val, self.c.val
+
+   @property
+   def impassible(self):
+      return self.mat.index in enums.IMPASSIBLE
+
+   @property
+   def habitable(self):
+      return self.mat.index in enums.HABITABLE
 
    def addEnt(self, entID, ent):
       assert entID not in self.ents
@@ -40,6 +66,7 @@ class Tile(StimHook):
       #Try inserting a pass
       if self.static:
          self.state = self.mat
+         self.index.update(self.state.index)
 
    @property
    def static(self):
@@ -51,6 +78,7 @@ class Tile(StimHook):
          return False
       elif self.capacity <= 1:
          self.state = self.mat.degen()
+         self.index.update(self.state.index)
       self.capacity -= 1
       return True
       return self.mat.dropTable.roll()

@@ -56,13 +56,50 @@ class Config(Template):
       Config to add new static attributes -- CLI definitions will be
       generated automatically.
    '''
-   ROOT   = os.path.join(os.getcwd(), 'resource/maps/procedural/map')
-   SUFFIX = '/map.tmx'
 
-   NTILE  = 6 #Number of distinct tile types
-   SZ     = 62
-   BORDER = 9
-   R = C  = SZ + BORDER
+   #Terrain parameters
+   TERRAIN_DIR       = 'resource/maps/procedural/'
+   '''Directory in which generated maps are saved'''
+
+   TERRAIN_DIR_SMALL = 'resource/maps/procedural-small/'
+   TERRAIN_DIR_LARGE = 'resource/maps/procedural-large/'
+
+   TERRAIN_RENDER    = False
+   '''Whether map generation should also save .png previews (slow + large file size)'''
+
+   TERRAIN_SIZE      = 1024
+   '''Size of each map (number of tiles along each side)'''
+
+   TERRAIN_BORDER    = 10
+   '''Number of lava border tiles surrounding each side of the map'''
+
+   TERRAIN_FREQUENCY = (-3, -6)
+   '''Simplex noise frequence range (log2 space)'''
+
+   TERRAIN_OCTAVES   = 8
+   '''Number of octaves sampled from log2 spaced TERRAIN_FREQUENCY range'''
+
+   TERRAIN_INVERT    = False
+   '''Specify normal generation (lower frequency at map center) or inverted generation (lower frequency at map edges). Only applied for TERRAIN_OCTAVES > 1'''
+
+   TERRAIN_ALPHA        = 0.035
+   TERRAIN_BETA         = 0.05
+   TERRAIN_LAVA         = 0.0
+   TERRAIN_WATER        = 0.25
+   TERRAIN_FOREST_LOW   = 0.25
+   TERRAIN_GRASS        = 0.715
+   TERRAIN_FOREST_HIGH  = 0.75
+
+
+   #Map load parameters
+   ROOT   = os.path.join(os.getcwd(), TERRAIN_DIR, 'map')
+   '''Terrain map load directory'''
+
+   SUFFIX = '/map.npy'
+   '''Terrain map file suffix'''
+
+   NTILE  = 6
+   '''Number of distinct tile types'''
 
    #Agent name
    NAME_PREFIX             = 'Neural_'
@@ -73,13 +110,13 @@ class Config(Template):
    STIM                    = 7
    '''Number of tiles an agent can see in any direction'''
 
-   WINDOW                  = 2*STIM + 1
-   '''Size of the square tile crop visible to an agent'''
-
 
    # Population parameters
    NENT                    = 256
    '''Maximum number of agents spawnable in the environment'''
+
+   NMOB                    = 1024
+   '''Maximum number of NPCs spawnable in the environment'''
 
    NPOP                    = 8
    '''Number of distinct populations spawnable in the environment'''
@@ -117,6 +154,23 @@ class Config(Template):
    IMMUNE                  = 10
    '''Number of ticks an agent cannot be damaged after spawning'''
 
+   WILDERNESS              = True
+   '''Whether to bracket combat into wilderness levels'''
+
+   INVERT_WILDERNESS       = False
+   '''Whether to reverse wilderness level generation'''
+
+   WILDERNESS_MIN          = -1
+   WILDERNESS_MAX          = 99
+
+   NPC_SPAWN_AGGRESSIVE    = 0.70
+   NPC_SPAWN_NEUTRAL       = 0.45
+   NPC_SPAWN_PASSIVE       = 0.20
+   
+   NPC_LEVEL_MIN           = 1
+   NPC_LEVEL_MAX           = 99
+   NPC_LEVEL_SPREAD        = 10 
+
    MELEE_RANGE             = 1
    '''Range of attacks using the Melee skill'''
 
@@ -128,6 +182,11 @@ class Config(Template):
 
    FREEZE_TIME             = 3
    '''Number of ticks successful Mage attacks freeze a target'''
+
+   @property
+   def WINDOW(self):
+      '''Size of the square tile crop visible to an agent'''
+      return 2*self.STIM + 1
 
    def SPAWN(self):
       '''Generates spawn positions for new agents
@@ -141,11 +200,18 @@ class Config(Template):
          position:
             The position (row, col) to spawn the given agent
       '''
-      R, C = Config.R, Config.C
-      spawn, border, sz = [], Config.BORDER, Config.SZ
-      spawn += [(border, border+i) for i in range(sz)]
-      spawn += [(border+i, border) for i in range(sz)]
-      spawn += [(R-1, border+i) for i in range(sz)]
-      spawn += [(border+i, C-1) for i in range(sz)]
-      idx = np.random.randint(0, len(spawn))
+      mmax = self.TERRAIN_SIZE - self.TERRAIN_BORDER - 1
+      mmin = self.TERRAIN_BORDER
+
+      var  = np.random.randint(mmin, mmax)
+      fixed = np.random.choice([mmin, mmax])
+      r, c = int(var), int(fixed)
+      if np.random.rand() > 0.5:
+          r, c = c, r 
+      return (r, c)
+
+      W     = 2 #Offset
+      R, C  = Config.R//2, Config.C//2
+      spawn = [(R+W, C+W), (R-W, C-W), (R+W, C-W), (R-W, C+W)]
+      idx   = np.random.randint(0, len(spawn))
       return spawn[idx]

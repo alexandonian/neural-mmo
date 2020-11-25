@@ -92,7 +92,7 @@ def textures():
    for mat in enums.Material:
       mat = mat.value
       tex = imread(
-            'resource/assets/tiles/' + mat.tex + '.png')
+            'resource/assets/tiles/' + str(mat.tex) + '.png')
       key = mat.tex
       mat.tex = tex[:, :, :3][::4, ::4]
       lookup[key] = mat
@@ -110,7 +110,7 @@ def tile(val, offset):
    else:
       return 'stone'
 
-def material(terrain, tex, X, Y, border=9):
+def material(terrain, tex, X, Y, border=11):
    terrain = deepcopy(terrain).astype(object)
    for y in range(Y):
       for x in range(X):
@@ -132,6 +132,7 @@ def material(terrain, tex, X, Y, border=9):
             val = float(terrain[y, x])
             norm = mag / (sz / 2)
             offset = norm
+            offset = 0.085
             #curve = val + 0.1*mag/sz + 0.9*(mag/sz)**3
             mat = tile(val, 0.325*offset)
 
@@ -152,8 +153,8 @@ def fractal(terrain, path):
    frac = (256*terrain).astype(np.uint8)
    imsave(path, terrain)
 
-nMaps, sz = 12, 128 + 16
-#nMaps, sz = 1, 512 + 16
+nMaps, sz = 1, 1024
+#nMaps, sz = 12, 512
 seeds = np.linspace(0, 2**32, nMaps)
 scale = int(sz / 5)
 root = 'resource/maps/'
@@ -169,8 +170,8 @@ for i, seed in enumerate(seeds):
       pass
    terrain = grid(sz, sz, scale=scale, seed=seed)
    tiles = material(terrain, tex, sz, sz)
-   fractal(terrain, path+'fractal.png')
-   render(tiles, path+'map.png')
+   #fractal(terrain, path+'fractal.png')
+   #render(tiles, path+'map.png')
    index(tiles, path)
 
 

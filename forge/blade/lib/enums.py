@@ -63,6 +63,7 @@ class Material(Enum):
    OREROCK  = Orerock
 
 IMPASSIBLE = (1, 5, 6)
+HABITABLE  = (2, 3, 4)
 
 class Defaults:
    BLACK    = (0, 0, 0)
@@ -111,6 +112,16 @@ class Color256:
       return colors
    colors = make256()
 
+class Tier:
+   BLACK    = Color('BLACK', '#000000')
+   WOOD     = Color('WOOD', '#784d1d')
+   BRONZE   = Color('BRONZE', '#db4508')
+   SILVER   = Color('SILVER', '#dedede')
+   GOLD     = Color('GOLD', '#ffae00')
+   PLATINUM = Color('PLATINUM', '#cd75ff')
+   DIAMOND  = Color('DIAMOND', '#00bbbb')
+   
+
 class Neon:
    RED      = Color('RED', '#ff0000')
    ORANGE   = Color('ORANGE', '#ff8000')
@@ -151,6 +162,29 @@ class Neon:
       twelveColor = color12()
       randInd = np.random.randint(0, len(twelveColor))
       return twelveColor[randInd]
+
+class Solid:
+   BLUE       = Color('BLUE', '#1f77b4')
+   ORANGE     = Color('ORANGE', '#ff7f0e')
+   GREEN      = Color('GREEN', '#2ca02c')
+
+   RED        = Color('RED',  '#D62728')
+   PURPLE     = Color('PURPLE', '#9467bd')
+   BROWN      = Color('BROWN', '#8c564b')
+
+   PINK       = Color('PINK', '#e377c2')
+   GREY       = Color('GREY', '#7f7f7f')
+   CHARTREUSE = Color('CHARTREUSE', '#bcbd22')
+
+   SKY        = Color('SKY', '#17becf')
+
+   def color10():
+      return (
+              Solid.BLUE, Solid.ORANGE, Solid.GREEN,
+              Solid.RED, Solid.PURPLE, Solid.BROWN,
+              Solid.PINK, Solid.CHARTREUSE, Solid.SKY,
+              Solid.GREY)
+
 
 class Palette:
    def __init__(self, n):
