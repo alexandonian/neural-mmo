@@ -1,3 +1,4 @@
+import os
 from pdb import set_trace as T
 import numpy as np
 
@@ -9,6 +10,7 @@ class SanePPOTrainer(ppo.PPOTrainer):
    def __init__(self, env, path, config):
       super().__init__(env=env, config=config)
       self.saveDir = path
+      os.makedirs(os.path.dirname(path), exist_ok=True)
 
    def save(self):
       '''Save model to file. Note: RLlib does not let us chose save paths'''
@@ -18,19 +20,22 @@ class SanePPOTrainer(ppo.PPOTrainer):
       print('Saved to: {}'.format(savedir))
       return savedir
 
-   def restore(self, model):
+   def restore(self, config):
       '''Restore model from path'''
-      if model is None:
+      if config.MODEL is None:
          print('Training from scratch...')
          return
-      if model == 'current':
+      if config.MODEL == 'current':
          with open('experiment/path.txt') as f:
             path = f.read().splitlines()[0]
       else:
-         path = 'experiment/{}/checkpoint'.format(model)
+         path = config.path
 
-      print('Loading from: {}'.format(path))
-      super().restore(path)
+      try:
+         print('Loading from: {}'.format(path))
+         super().restore(path)
+      except FileNotFoundError:
+         print('Could not find checkpoint...training from scratch!')
 
    def policyID(self, idx):
       return 'policy_{}'.format(idx)
@@ -58,5 +63,5 @@ class SanePPOTrainer(ppo.PPOTrainer):
              print('{}:: Total: {:.4f}, N: {:.4f}, Mean: {:.4f}, Std: {:.4f}, Min: {:.4f}, Max: {:.4f}'.format(
                    key, np.sum(stat), len(stat), np.mean(stat), np.std(stat), np.min(stat), np.max(stat)))
              hist[key] = []
-       
+
           epoch += 1

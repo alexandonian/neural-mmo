@@ -98,7 +98,7 @@ def loadTrainer(config):
          lambda config: projekt.RLLibEnv(config))
 
    return rlutils.SanePPOTrainer(
-         env="custom", path='experiment', config={
+         env="custom", path=config.path, config={
       'num_workers': 4,
       'num_gpus_per_worker': 0,
       'num_gpus': 1,
@@ -138,7 +138,7 @@ def loadModel(config):
       trainer = loadTrainer(config)
 
    utils.modelSize(trainer.defaultModel())
-   trainer.restore(config.MODEL)
+   trainer.restore(config)
 
    evaluator = projekt.Evaluator(config,
       trainer=trainer, policy=policy)

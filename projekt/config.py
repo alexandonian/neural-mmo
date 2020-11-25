@@ -10,6 +10,7 @@ class Config(core.Config):
    SCRIPTED_BFS = False
    SCRIPTED_DP  = False
    EVALUATE     = False
+   EXPERIMENT_NAME = 'dev_exp'
 
    # Model dimensions
    EMBED  = 64
@@ -54,9 +55,13 @@ class Config(core.Config):
    PLOT_TOOLS = False
    PLOT_INTERACTIVE = False
 
+   path = os.path.join(
+      LOG_DIR, EXPERIMENT_NAME, 'checkpoints'
+   )
+
 #Map Size Presets
 class SmallMap(Config):
-   TERRAIN_SIZE       = 80 
+   TERRAIN_SIZE       = 80
    TERRAIN_OCTAVES    = 1
    TERRAIN_FOREST_LOW = 0.30
 
